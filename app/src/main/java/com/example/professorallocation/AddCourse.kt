@@ -32,7 +32,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.professorallocation.model.CourseModel
+import com.example.professorallocation.model.Course
 import com.example.professorallocation.ui.theme.ProfessorAllocationTheme
 import com.example.professorallocation.ui.theme.greenJC
 import retrofit2.Call
@@ -130,21 +130,21 @@ private fun postDataUsingRetrofit(
     val url = "http://192.168.1.96:8080/"
     val retrofit = Retrofit.Builder().baseUrl(url).addConverterFactory(GsonConverterFactory.create()).build()
     val retrofitAPI = retrofit.create(RetrofitAPI::class.java)
-    val courseModel = CourseModel(courseName.value.text)
-    val call: Call<CourseModel?>? = retrofitAPI.postCourse(courseModel)
+    val courseModel = Course(courseName.value.text)
+    val call: Call<Course?>? = retrofitAPI.postCourse(courseModel)
 
-    call!!.enqueue(object : Callback<CourseModel?> {
-        override fun onResponse(call: Call<CourseModel?>, response: Response<CourseModel?>) {
+    call!!.enqueue(object : Callback<Course?> {
+        override fun onResponse(call: Call<Course?>, response: Response<Course?>) {
             Toast.makeText(ctx, "Curso Cadastrado", Toast.LENGTH_SHORT).show()
 
-            val course: CourseModel? = response.body()
+            val course: Course? = response.body()
 
             val resp = "Status Code: " + response.code() + "\n" + "Course Name : " + course!!.name
 
             result.value = resp
         }
 
-        override fun onFailure(call: Call<CourseModel?>, t: Throwable) {
+        override fun onFailure(call: Call<Course?>, t: Throwable) {
             result.value = "Error found is: " + t.message
         }
     })

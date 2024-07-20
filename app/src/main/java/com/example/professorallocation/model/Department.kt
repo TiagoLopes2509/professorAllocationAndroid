@@ -1,5 +1,6 @@
 package com.example.professorallocation.model
 
-data class DepartmentModel(
+data class Department(
+    var id: Long,
     var name: String
 )
