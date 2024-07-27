@@ -1,6 +1,6 @@
 package com.example.professorallocation
 
-import Course
+import CourseScreen
 import Department
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -44,7 +44,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -52,7 +51,7 @@ import com.example.professorallocation.Screens.Allocation
 import com.example.professorallocation.Screens.Home
 import com.example.professorallocation.Screens.Professor
 import com.example.professorallocation.Screens.Screens
-import com.example.professorallocation.ViewModel.CourseViewModel
+import com.example.professorallocation.Screens.CourseViewModel
 import com.example.professorallocation.ui.theme.ProfessorAllocationTheme
 import com.example.professorallocation.ui.theme.greenJC
 import kotlinx.coroutines.launch
@@ -196,7 +195,7 @@ fun NavDrawer(viewModel: CourseViewModel){
                 composable(Screens.Home.screen){ Home() }
                 composable(Screens.Professor.screen){ Professor() }
                 composable(Screens.Department.screen){ Department() }
-                composable(Screens.Course.screen){ Course(CourseViewModel())}
+                composable(Screens.Course.screen){ CourseScreen(CourseViewModel())}
                 composable(Screens.Allocation.screen){ Allocation() }
             }
         }
