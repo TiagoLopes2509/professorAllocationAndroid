@@ -18,11 +18,11 @@ interface CourseService {
     fun save(@Body course: Course): Call<Any>
 
     @GET("courses/{id}")
-    fun getById(@Path("id") id: Int): Call<Course>
+    fun getById(@Path("id") id: Long): Call<Course>
 
     @PUT("courses/{id}")
-    fun update(@Path("id") id: Int, @Body course: Course): Call<Course>
+    fun update(@Path("id") id: Long?, @Body course: Course): Call<Course>
 
     @DELETE("courses/{id}")
-    fun delete(@Path("id") id: Int): Call<Any>
+    fun delete(@Path("id") id: Long): Call<Any>
 }

@@ -2,6 +2,7 @@ package com.example.professorallocation.Screens
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,9 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -33,40 +31,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.professorallocation.model.Course
+import com.example.professorallocation.repository.CourseRepository
 import com.example.professorallocation.repository.RetrofitConfig
-import com.example.professorallocation.ui.theme.ProfessorAllocationTheme
 import com.example.professorallocation.ui.theme.greenJC
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AddCourse() {
-    ProfessorAllocationTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            Scaffold{
-                postCourse()
-            }
-        }
-    }
+fun AddCourse(onCourseAdded: () -> Unit) {
+
+    postCourse(onCourseAdded)
+
 }
 
 @Composable
-fun postCourse(){
+fun postCourse(onCourseAdded: () -> Unit){
     val ctx = LocalContext.current
-
     val courseName = remember{
         mutableStateOf(TextFieldValue())
     }
     val response = remember {
-        mutableStateOf("")
-    }
-
-    val courseId = remember {
         mutableStateOf("")
     }
 
@@ -104,7 +87,11 @@ fun postCourse(){
 
         Button(
             onClick = {
-                postDataCourseUsingRetrofit(ctx,courseId.value.toLong(), courseName, response)
+                val course = Course(name = courseName.value.text)
+                postDataCourse(ctx, course, response) {
+                    onCourseAdded()
+                }
+
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -128,32 +115,24 @@ fun postCourse(){
     }
 }
 
-private fun postDataCourseUsingRetrofit(
+private fun postDataCourse(
     ctx: Context,
-    courseId: Long,
-    courseName: MutableState<TextFieldValue>,
-    result: MutableState<String>
+    course: Course,
+    result: MutableState<String>,
+    onCourseAdded: () -> Unit
 ){
-//    val url = "http://192.168.1.96:8080/"
-//    val retrofit = Retrofit.Builder().baseUrl(url).addConverterFactory(GsonConverterFactory.create()).build()
-//    val retrofitAPI = retrofit.create(RetrofitConfig.courseService)
-//    val courseModel = Course(courseId,courseName.value.text)
-//    val call: Call<Course?>? = retrofitAPI.postCourse(courseModel)
-//
-//    call!!.enqueue(object : Callback<Course?> {
-//        override fun onResponse(call: Call<Course?>, response: Response<Course?>) {
-//            Toast.makeText(ctx, "Curso Cadastrado", Toast.LENGTH_SHORT).show()
-//
-//            val course: Course? = response.body()
-//
-//            val resp = "Status Code: " + response.code() + "\n" + "Course Name : " + course!!.name
-//
-//            result.value = resp
-//        }
-//
-//        override fun onFailure(call: Call<Course?>, t: Throwable) {
-//            result.value = "Error found is: " + t.message
-//        }
-//    })
+    val courseRepository =  CourseRepository(RetrofitConfig.courseService)
+
+    courseRepository.saveCourse(
+        course = course,
+        onSuccess = {
+            result.value = "Curso Cadastrado com Sucesso!"
+            Toast.makeText(ctx, "Curso Cadastrado", Toast.LENGTH_SHORT).show()
+            onCourseAdded()
+        },
+        onError = { throwable ->
+            result.value =  "Error loading courses: ${throwable}"
+        }
+    )
 
 }

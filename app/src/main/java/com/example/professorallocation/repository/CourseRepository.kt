@@ -16,16 +16,25 @@ class CourseRepository(private val courseService: CourseService) {
 
     fun saveCourse(
         course: Course,
-        onCall: () -> Unit,
-        onError: () -> Unit
+        onSuccess: () -> Unit,
+        onError:(Throwable) -> Unit
     ) {
+        if (course.name.isBlank()) {
+            onError(Throwable("O nome do curso não pode estar vazio."))
+            return
+        }
+
         courseService.save(course).enqueue(object : Callback<Any> {
             override fun onResponse(p0: Call<Any>, response: Response<Any>) {
-                onCall()
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError(Throwable("Erro: ${response.code()} - ${response.message()}"))
+                }
             }
 
             override fun onFailure(p0: Call<Any>, p1: Throwable) {
-                onError()
+                onError(p1)
             }
         })
     }
@@ -58,15 +67,15 @@ class CourseRepository(private val courseService: CourseService) {
     }
 
     fun getCourseById(
-        id: Int,
-        onCall: (courses: Course?) -> Unit,
+        id: Long,
+        onSuccess: (courses: Course?) -> Unit,
         onError: (message: String) -> Unit
     ) {
         courseService.getById(id).enqueue(object : Callback<Course> {
             override fun onResponse(p0: Call<Course>, response: Response<Course>) {
                 response.isSuccessful.let {
                     if (it)
-                        onCall(response.body())
+                        onSuccess(response.body())
                     else
                         onError(response.message())
                 }
@@ -79,39 +88,41 @@ class CourseRepository(private val courseService: CourseService) {
     }
 
     fun updateCourse(
-        id: Int,
         course: Course,
-        onCall: (courses: Course?) -> Unit,
-        onError: (message: String) -> Unit
+        onSuccess: () -> Unit,
+        onError: (Throwable) -> Unit
     ) {
-        courseService.update(id, course).enqueue(object : Callback<Course> {
-            override fun onResponse(p0: Call<Course>, response: Response<Course>) {
-                response.isSuccessful.let {
-                    if (it)
-                        onCall(response.body())
-                    else
-                        onError(response.message())
+        courseService.update(course.id, course).enqueue(object : Callback<Course> {
+            override fun onResponse(call: Call<Course>, response: Response<Course>) {
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError(Throwable("Erro: ${response.code()} - ${response.message()}"))
                 }
             }
 
-            override fun onFailure(p0: Call<Course>, p1: Throwable) {
-                p1.message?.let { onError(it) }
+            override fun onFailure(call: Call<Course>, t: Throwable) {
+                onError(t)
             }
         })
     }
 
     fun deleteCourse(
-        id: Int,
-        onCall: () -> Unit,
+        id: Long,
+        onSuccess: () -> Unit,
         onError: (message: String) -> Unit
     ) {
         courseService.delete(id).enqueue(object : Callback<Any> {
-            override fun onResponse(p0: Call<Any>, p1: Response<Any>) {
-                TODO("Not yet implemented")
+            override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError("Failed to delete course: ${response.message()}")
+                }
             }
 
-            override fun onFailure(p0: Call<Any>, p1: Throwable) {
-                TODO("Not yet implemented")
+            override fun onFailure(call: Call<Any>, t: Throwable) {
+                onError("Error: ${t.message}")
             }
         })
     }

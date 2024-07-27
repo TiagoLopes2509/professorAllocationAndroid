@@ -2,6 +2,7 @@ package com.example.professorallocation
 
 import Course
 import Department
+import EditCourse
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -48,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.professorallocation.Screens.AddCourse
 import com.example.professorallocation.Screens.Allocation
 import com.example.professorallocation.Screens.Home
 import com.example.professorallocation.Screens.Professor
@@ -93,8 +95,6 @@ fun NavDrawer(viewModel: CourseViewModel){
                     .fillMaxWidth()
                     .height(80.dp)) {
 
-                    val image = painterResource(R.drawable.fafire )
-                    Image(painter = image, contentDescription = "Fafire", Modifier.padding(16.dp) )
                     Text(
                         text = "Unifafire",
                         fontSize = 50.sp,
@@ -189,17 +189,25 @@ fun NavDrawer(viewModel: CourseViewModel){
                         }
                     },
                 )
+            },
+            content = {paddingValues ->
+                NavHost(
+                    navController = navigationController,
+                    startDestination = Screens.Home.screen,
+                    Modifier.padding(paddingValues)
+                ){
+                    composable(Screens.Home.screen){ Home() }
+                    composable(Screens.Professor.screen){ Professor() }
+                    composable(Screens.Department.screen){ Department() }
+                    composable(Screens.Allocation.screen){ Allocation() }
+                    composable(Screens.Course.screen){ Course(viewModel, navigationController)}
+                    composable(Screens.EditCourse.screen){EditCourse(viewModel, navigationController)}
+                    composable(Screens.AddCourse.screen){ AddCourse(onCourseAdded = {
+                        navigationController.popBackStack()
+                        viewModel.refreshCourses()
+                    })}
+                }
             }
-        ) {
-            NavHost(navController = navigationController,
-               startDestination = Screens.Home.screen ){
-                composable(Screens.Home.screen){ Home() }
-                composable(Screens.Professor.screen){ Professor() }
-                composable(Screens.Department.screen){ Department() }
-                composable(Screens.Course.screen){ Course(CourseViewModel())}
-                composable(Screens.Allocation.screen){ Allocation() }
-            }
-        }
-
+        )
     }
 }

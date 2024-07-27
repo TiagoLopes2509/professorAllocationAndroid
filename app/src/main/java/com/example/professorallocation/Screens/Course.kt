@@ -1,83 +1,115 @@
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.professorallocation.Screens.Screens
 import com.example.professorallocation.ViewModel.CourseViewModel
-import com.example.professorallocation.ui.theme.ProfessorAllocationTheme
 import com.example.professorallocation.model.Course
-import com.example.professorallocation.repository.CourseRepository
-import com.example.professorallocation.repository.RetrofitConfig
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun Course(viewModel: CourseViewModel) {
-    val courseService = RetrofitConfig.courseService
-    val repository = remember { CourseRepository(courseService) }
-    val courses by viewModel.courses.collectAsState()
+fun Course(viewModel: CourseViewModel, navController: NavController) {
+    val courses by viewModel.courses.collectAsStateWithLifecycle()
 
-//    LaunchedEffect(true) {
-//        loadCourses(repository){}
-//    }
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate(Screens.AddCourse.screen)
+                }
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Course")
+            }
+        },
+        content = { paddingValues ->
+            CourseList(
+                courses = courses,
+                Modifier.padding(paddingValues),
+                onCourseClick = { course ->
+                    course.id?.let { id ->
+                        navController.navigate(Screens.EditCourse.withArgs(id))
+                    }
+                },
+                onDeleteClick = { course ->
+                    viewModel.deleteCourse(course)
+                }
+            )
+        }
+    )
+}
 
-    ProfessorAllocationTheme{
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            Scaffold{
+@Composable
+fun CourseList(
+    courses: List<Course>,
+    modifier: Modifier = Modifier,
+    onCourseClick: (Course) -> Unit,
+    onDeleteClick: (Course) -> Unit
+) {
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp) // Add padding around the list
+    ) {
+        items(courses) { course ->
+            CourseItem(
+                course = course,
+                onClick = {onCourseClick(course)},
+                onDelete = {onDeleteClick(course) }
+            )
+        }
+    }
+}
 
-                CourseList(courses)
+@Composable
+fun CourseItem(
+    course: Course,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+    ) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp) // Space between items
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = course.name,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f) // Ensures text takes up available space
+            )
+            IconButton(onClick = { onDelete() }) {
+                Icon(Icons.Filled.Delete, contentDescription = "Delete")
             }
         }
     }
 }
 
-private fun CoroutineScope.loadCourses(repository: CourseRepository, onSuccess: (List<Course>) -> Unit) {
-    launch {
-        try {
-            repository.getCourses(
-                onSuccess = { fetchedCourses ->
-                    onSuccess(fetchedCourses)
-                },
-                onError = { error ->
-                    println("Erro ao carregar cursos: $error")
-                }
-            )
-        } catch (e: Exception) {
-            println("Erro ao carregar cursos: ${e.message}")
-        }
-    }
-}
-
-@Composable
-fun CourseList(courses: List<Course>) {
-
-    LazyColumn {
-        items(courses){ course ->
-            CourseItem(course = course)
-       }
-    }
-
-}
-
-@Composable
-fun CourseItem(course : Course){
-    Text(
-        text = course.name,
-        style = MaterialTheme.typography.bodyMedium
-    )
-}

@@ -29,6 +29,8 @@ fun Home() {
             .fillMaxSize()
             .fillMaxHeight()
             .fillMaxWidth()
+            .padding(top = 30.dp) // Adjust this padding to account for the TopAppBar
+            .padding(horizontal = 10.dp)
             .align(Alignment.TopStart), verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally) {
 
@@ -47,12 +49,4 @@ fun Home() {
         }
     }
 
-}
-
-@Preview
-@Composable
-fun HomePreview(){
-    ProfessorAllocationTheme {
-        Home()
-    }
 }
