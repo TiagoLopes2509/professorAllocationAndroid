@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 fun Course(viewModel: CourseViewModel) {
     val courseService = RetrofitConfig.courseService
     val repository = remember { CourseRepository(courseService) }
-    val courses by viewModel._courses.collectAsState()
+    val courses by viewModel.courses.collectAsState()
 
 //    LaunchedEffect(true) {
 //        loadCourses(repository){}
