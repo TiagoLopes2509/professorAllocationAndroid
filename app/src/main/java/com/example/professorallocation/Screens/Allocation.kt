@@ -1,4 +1,4 @@
-package com.example.professorallocation
+package com.example.professorallocation.Screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,14 +12,14 @@ import androidx.compose.ui.unit.sp
 import com.example.professorallocation.ui.theme.greenJC
 
 @Composable
-fun Professor() {
+fun Allocation() {
 
     Box(modifier = Modifier.fillMaxSize()){
         Column(modifier = Modifier
             .fillMaxSize()
             .align(Alignment.Center), verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Professor", fontSize =  30.sp, color = greenJC)
+            Text(text = "Allocation", fontSize =  30.sp, color = greenJC)
         }
     }
 

@@ -1,4 +1,4 @@
-package com.example.professorallocation
+package com.example.professorallocation.Screens
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -64,6 +64,10 @@ fun postDepartment(){
         mutableStateOf("")
     }
 
+    val departmentId = remember {
+        mutableStateOf("")
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -98,7 +102,7 @@ fun postDepartment(){
 
         Button(
             onClick = {
-                postDataUsingRetrofit(ctx,departmentName,response)
+                postDataUsingRetrofit(ctx,departmentId.value.toLong(),departmentName,response)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -124,29 +128,30 @@ fun postDepartment(){
 
 private fun postDataUsingRetrofit(
     ctx: Context,
+    departmentId: Long,
     departmentName: MutableState<TextFieldValue>,
     result: MutableState<String>
 ){
-    val url = "http://192.168.1.96:8080/"
-    val retrofit = Retrofit.Builder().baseUrl(url).addConverterFactory(GsonConverterFactory.create()).build()
-    val retrofitAPI = retrofit.create(RetrofitAPI::class.java)
-    val department = Department(departmentName.value.text)
-    val call: Call<Department?>? = retrofitAPI.postdeparment(department)
-
-    call!!.enqueue(object : Callback<Department?> {
-        override fun onResponse(call: Call<Department?>, response: Response<Department?>) {
-            Toast.makeText(ctx, "Departamento Cadastrado", Toast.LENGTH_SHORT).show()
-
-            val department: Department? = response.body()
-
-            val resp = "Status Code: " + response.code() + "\n" + "Department Name : " + department!!.name
-
-            result.value = resp
-        }
-
-        override fun onFailure(call: Call<Department?>, t: Throwable) {
-            result.value = "Error found is: " + t.message
-        }
-    })
+//    val url = "http://192.168.1.96:8080/"
+//    val retrofit = Retrofit.Builder().baseUrl(url).addConverterFactory(GsonConverterFactory.create()).build()
+//    val retrofitAPI = retrofit.create(RetrofitAPI::class.java)
+//    val department = Department(departmentId,departmentName.value.text)
+//    val call: Call<Department?>? = retrofitAPI.postdeparment(department)
+//
+//    call!!.enqueue(object : Callback<Department?> {
+//        override fun onResponse(call: Call<Department?>, response: Response<Department?>) {
+//            Toast.makeText(ctx, "Departamento Cadastrado", Toast.LENGTH_SHORT).show()
+//
+//            val department: Department? = response.body()
+//
+//            val resp = "Status Code: " + response.code() + "\n" + "Department Name : " + department!!.name
+//
+//            result.value = resp
+//        }
+//
+//        override fun onFailure(call: Call<Department?>, t: Throwable) {
+//            result.value = "Error found is: " + t.message
+//        }
+//    })
 
 }

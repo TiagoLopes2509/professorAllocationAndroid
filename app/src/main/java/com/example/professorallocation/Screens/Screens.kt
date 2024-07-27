@@ -1,4 +1,4 @@
-package com.example.professorallocation
+package com.example.professorallocation.Screens
 
 sealed class Screens(val screen: String){
     data object Home: Screens("home")

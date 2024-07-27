@@ -3,31 +3,23 @@ package com.example.professorallocation
 import Course
 import Department
 import android.annotation.SuppressLint
-import android.graphics.drawable.Icon
 import android.os.Bundle
-import android.webkit.WebSettings.TextSize
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -45,18 +37,22 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.professorallocation.Screens.Allocation
+import com.example.professorallocation.Screens.Home
+import com.example.professorallocation.Screens.Professor
+import com.example.professorallocation.Screens.Screens
+import com.example.professorallocation.ViewModel.CourseViewModel
 import com.example.professorallocation.ui.theme.ProfessorAllocationTheme
 import com.example.professorallocation.ui.theme.greenJC
 import kotlinx.coroutines.launch
@@ -71,7 +67,7 @@ class MainActivity : ComponentActivity() {
                   //modifier = Modifier.fillMaxSize(),
                   color = MaterialTheme.colorScheme.background
               ) {
-                    NavDrawer()
+                    NavDrawer(viewModel = CourseViewModel())
               }
             }
         }
@@ -81,7 +77,7 @@ class MainActivity : ComponentActivity() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavDrawer(){
+fun NavDrawer(viewModel: CourseViewModel){
     val navigationController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -197,10 +193,10 @@ fun NavDrawer(){
         ) {
             NavHost(navController = navigationController,
                startDestination = Screens.Home.screen ){
-                composable(Screens.Home.screen){Home()}
+                composable(Screens.Home.screen){ Home() }
                 composable(Screens.Professor.screen){ Professor() }
                 composable(Screens.Department.screen){ Department() }
-                composable(Screens.Course.screen){ Course() }
+                composable(Screens.Course.screen){ Course(CourseViewModel())}
                 composable(Screens.Allocation.screen){ Allocation() }
             }
         }
