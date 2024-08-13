@@ -11,9 +11,6 @@ import retrofit2.Response
 
 class CourseRepository(private val courseService: CourseService) {
 
-    private val _courses = MutableStateFlow<List<Course>>(emptyList())
-    val courses: StateFlow<List<Course>> get() = _courses
-
     fun saveCourse(
         course: Course,
         onSuccess: () -> Unit,
@@ -56,8 +53,6 @@ class CourseRepository(private val courseService: CourseService) {
                     onError("Erro ao carregar cursos: ${response.message()}")
                 }
 
-                Log.d("API_Response", "Response code: ${response.code()}")
-                Log.d("API_Response", "Response body: ${response.body()}")
             }
 
             override fun onFailure(call: Call<List<Course>>, t: Throwable) {
@@ -117,7 +112,7 @@ class CourseRepository(private val courseService: CourseService) {
                 if (response.isSuccessful) {
                     onSuccess()
                 } else {
-                    onError("Failed to delete course: ${response.message()}")
+                    onError("Falha ao deletar curso: ${response.message()}")
                 }
             }
 

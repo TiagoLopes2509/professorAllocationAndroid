@@ -1,5 +1,7 @@
 package com.example.professorallocation.repository
 
+import android.util.Log
+import com.example.professorallocation.model.Course
 import com.example.professorallocation.model.Department
 import com.example.professorallocation.service.DepartmentService
 import retrofit2.Call
@@ -8,53 +10,65 @@ import retrofit2.Response
 
 class DepartmentRepository( private val departmentService: DepartmentService) {
 
-//    fun saveDepartment(
-//        department: Department,
-//        onCall: () -> Unit,
-//        onError: () -> Unit) {
-//        departmentService.save(department).enqueue(object : Callback<Any> {
-//            override fun onResponse(p0: Call<Any>, p1: Response<Any>) {
-//                onCall()
-//            }
-//
-//            override fun onFailure(p0: Call<Any>, p1: Throwable) {
-//                onError()
-//            }
-//
-//        })
-//    }
+    fun saveDepartment(
+        department: Department,
+        onSuccess: () -> Unit,
+        onError:(Throwable) -> Unit
+    ) {
+        if (department.name.isBlank()){
+            onError(Throwable("O nome do Departamento não pode ser vazio."))
+            return
+        }
+
+        departmentService.save(department).enqueue(object : Callback<Any> {
+            override fun onResponse(p0: Call<Any>, response: Response<Any>) {
+                if (response.isSuccessful){
+                    onSuccess()
+                }
+            }
+
+            override fun onFailure(p0: Call<Any>, p1: Throwable) {
+                onError(p1)
+            }
+
+        })
+    }
 
     fun getDepartments(
-        onCall: (courses: List<Department>?) -> Unit,
-        onError: (message: String) -> Unit
+        onSuccess: (List<Department>) -> Unit,
+        onError: (String) -> Unit
     ) {
         departmentService.getAll().enqueue(object : Callback<List<Department>> {
             override fun onResponse(p0: Call<List<Department>>, response: Response<List<Department>>) {
-                response.isSuccessful.let {
-                    if (it)
-                        onCall(response.body())
-                    else
-                        onError(response.message())
+                if (response.isSuccessful) {
+                    val departmentsResponse = response.body()
+                    if (departmentsResponse != null) {
+                        onSuccess(departmentsResponse)
+                    } else {
+                        onError("Resposta vazia ou inválida ao carregar cursos")
+                    }
+                } else {
+                    onError("Erro ao carregar departamentos: ${response.message()}")
                 }
             }
 
             override fun onFailure(p0: Call<List<Department>>, p1: Throwable) {
-                p1.message?.let { onError(it) }
+                onError("Falha na requisição ao carregar departamentos: ${p1.message}")
             }
 
         })
     }
 
     fun getDepartmentById(
-        id: Int,
-        onCall: (departments: Department?) -> Unit,
+        id: Long,
+        onSuccess: (departments: Department?) -> Unit,
         onError: (message: String) -> Unit
     ) {
         departmentService.getById(id).enqueue(object : Callback<Department> {
             override fun onResponse(p0: Call<Department>, response: Response<Department>) {
                 response.isSuccessful.let {
                     if (it)
-                        onCall(response.body())
+                        onSuccess(response.body())
                     else
                         onError(response.message())
                 }
@@ -67,43 +81,45 @@ class DepartmentRepository( private val departmentService: DepartmentService) {
     }
 
     fun updateDepartment(
-        id: Int,
         department: Department,
-        onCall: (departments: Department?) -> Unit,
-        onError: (message: String) -> Unit
+        onSuccess: () -> Unit,
+        onError: (Throwable) -> Unit
     ) {
-        departmentService.update(id, department).enqueue(object : Callback<Department> {
+        departmentService.update(department.id, department).enqueue(object : Callback<Department> {
             override fun onResponse(p0: Call<Department>, response: Response<Department>) {
-                response.isSuccessful.let {
-                    if (it)
-                        onCall(response.body())
-                    else
-                        onError(response.message())
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError(Throwable("Erro: ${response.code()} - ${response.message()}"))
                 }
             }
 
             override fun onFailure(p0: Call<Department>, p1: Throwable) {
-                p1.message?.let { onError(it) }
+                onError(p1)
             }
 
         })
+    }
 
-        fun deleteDepartment(
-            id: Int,
-            onCall: () -> Unit,
-            onError: (message: String) -> Unit
-        ) {
-            departmentService.delete(id).enqueue(object : Callback<Any> {
-                override fun onResponse(p0: Call<Any>, p1: Response<Any>) {
-                    TODO("Not yet implemented")
+    fun deleteDepartment(
+        id: Long,
+        onSuccess: () -> Unit,
+        onError: (message: String) -> Unit
+    ) {
+        departmentService.delete(id).enqueue(object : Callback<Any> {
+            override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                if(response.isSuccessful){
+                    onSuccess()
+                } else {
+                    onError("Falha ao deletar departamento: ${response.message()}")
                 }
+            }
 
-                override fun onFailure(p0: Call<Any>, p1: Throwable) {
-                    TODO("Not yet implemented")
-                }
+            override fun onFailure(p0: Call<Any>, p1: Throwable) {
+                onError("Error: ${p1.message}")
+            }
 
-            })
-        }
+        })
     }
 }
 

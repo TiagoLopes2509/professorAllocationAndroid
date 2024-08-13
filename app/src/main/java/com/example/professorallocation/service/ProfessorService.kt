@@ -1,6 +1,7 @@
 package com.example.professorallocation.service
 
 import com.example.professorallocation.model.Professor
+import com.example.professorallocation.model.ProfessorWithDepartment
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -12,17 +13,17 @@ import retrofit2.http.Path
 interface ProfessorService {
 
     @GET("professors")
-    fun getAll() : Call<List<Professor>>
+    fun getAll() : Call<List<ProfessorWithDepartment>>
 
     @GET("professors/{id}")
-    fun getById(@Path("id") id: Int) : Call<Professor>
+    fun getById(@Path("id") id: Long) : Call<Professor>
 
-    @POST("professors/{id}")
-    fun save(@Body professor: Professor) : Call<Professor>
+    @POST("professors")
+    fun save(@Body professor: Professor) : Call<Any>
 
     @PUT("professors/{id}")
-    fun update(@Path("id") id: Int, @Body professor: Professor) : Call<Professor>
+    fun update(@Path("id") id: Long?, @Body professor: Professor) : Call<Professor>
 
     @DELETE("professors/{id}")
-    fun delete(@Path("id") id: Int): Call<Any>
+    fun delete(@Path("id") id: Long): Call<Any>
 }

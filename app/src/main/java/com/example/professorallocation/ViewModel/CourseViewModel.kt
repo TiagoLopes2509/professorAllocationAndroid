@@ -3,7 +3,6 @@ package com.example.professorallocation.ViewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.professorallocation.model.Course
 import com.example.professorallocation.repository.CourseRepository
 import com.example.professorallocation.repository.RetrofitConfig
@@ -35,7 +34,7 @@ class CourseViewModel : ViewModel(){
                 },
                 onError = { error ->
                     Log.e("CourseViewModel", "Error loading courses: $error")
-                    }
+                }
             )
         }
     }

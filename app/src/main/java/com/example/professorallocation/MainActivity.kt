@@ -8,7 +8,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,21 +39,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.professorallocation.Screens.AddAllocation
 import com.example.professorallocation.Screens.AddCourse
+import com.example.professorallocation.Screens.AddDepartment
+import com.example.professorallocation.Screens.AddProfessor
 import com.example.professorallocation.Screens.Allocation
+import com.example.professorallocation.Screens.EditDepartment
+import com.example.professorallocation.Screens.EditProfessor
 import com.example.professorallocation.Screens.Home
 import com.example.professorallocation.Screens.Professor
 import com.example.professorallocation.Screens.Screens
+import com.example.professorallocation.ViewModel.AllocationViewModel
 import com.example.professorallocation.ViewModel.CourseViewModel
+import com.example.professorallocation.ViewModel.DepartmentViewModel
+import com.example.professorallocation.ViewModel.ProfessorViewModel
 import com.example.professorallocation.ui.theme.ProfessorAllocationTheme
 import com.example.professorallocation.ui.theme.greenJC
 import kotlinx.coroutines.launch
@@ -69,7 +75,8 @@ class MainActivity : ComponentActivity() {
                   //modifier = Modifier.fillMaxSize(),
                   color = MaterialTheme.colorScheme.background
               ) {
-                    NavDrawer(viewModel = CourseViewModel())
+                    NavDrawer(courseViewModel = CourseViewModel(), departmentViewModel = DepartmentViewModel(),
+                        professorViewModel = ProfessorViewModel(), allocationViewModel = AllocationViewModel())
               }
             }
         }
@@ -79,11 +86,11 @@ class MainActivity : ComponentActivity() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavDrawer(viewModel: CourseViewModel){
+fun NavDrawer(courseViewModel: CourseViewModel, departmentViewModel: DepartmentViewModel,
+              professorViewModel: ProfessorViewModel, allocationViewModel: AllocationViewModel){
     val navigationController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val context = LocalContext.current.applicationContext
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -197,17 +204,53 @@ fun NavDrawer(viewModel: CourseViewModel){
                     Modifier.padding(paddingValues)
                 ){
                     composable(Screens.Home.screen){ Home() }
-                    composable(Screens.Professor.screen){ Professor() }
-                    composable(Screens.Department.screen){ Department() }
-                    composable(Screens.Allocation.screen){ Allocation() }
-                    composable(Screens.Course.screen){ Course(viewModel, navigationController)}
-                    composable(Screens.EditCourse.screen){EditCourse(viewModel, navigationController)}
+
+                    composable(Screens.Professor.screen){ Professor(professorViewModel, departmentViewModel, navigationController) }
+
+                    composable(Screens.AddProfessor.screen){ AddProfessor(onProfessorAdded = {
+                        navigationController.popBackStack()
+                        professorViewModel.refreshProfessors()
+                    }, departmentViewModel)}
+
+                    composable(Screens.EditProfessor.screen, arguments = listOf(
+                        navArgument("professorId"){type = NavType.LongType},
+                        navArgument("departmentId"){type = NavType.LongType}))
+                    { EditProfessor(onProfessorAdded = {
+                        professorViewModel.refreshProfessors()
+                    }, professorViewModel, departmentViewModel, navigationController)}
+
+                    composable(Screens.Department.screen){ Department(departmentViewModel, navigationController) }
+
+                    composable(Screens.AddDepartment.screen){AddDepartment(onDepartmentAdded = {
+                        navigationController.popBackStack()
+                        departmentViewModel.refreshDepartments()
+                    })}
+
+                    composable(Screens.EditDepartment.screen, arguments = listOf(navArgument("id"){type = NavType.LongType}))
+                    {EditDepartment(onDepartmentAdded = {
+                        departmentViewModel.refreshDepartments()
+                    }, departmentViewModel, navigationController) }
+
+                    composable(Screens.Allocation.screen){ Allocation(allocationViewModel, professorViewModel, navigationController) }
+                    composable(Screens.AddAllocation.screen){AddAllocation(onAllocationAdded = {
+                        navigationController.popBackStack()
+                        allocationViewModel.refreshAllocations()
+                    }, courseViewModel, professorViewModel)}
+
+                    composable(Screens.Course.screen){ Course(courseViewModel, navigationController)}
+
+                    composable(Screens.EditCourse.screen, arguments = listOf(navArgument("id"){type = NavType.LongType}))
+                    {EditCourse(onCourseAdded = {
+                        courseViewModel.refreshCourses()
+                    },courseViewModel, navigationController)}
+
                     composable(Screens.AddCourse.screen){ AddCourse(onCourseAdded = {
                         navigationController.popBackStack()
-                        viewModel.refreshCourses()
+                        courseViewModel.refreshCourses()
                     })}
                 }
             }
         )
     }
 }
+

@@ -1,3 +1,5 @@
+package com.example.professorallocation.Screens
+
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,55 +23,56 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.professorallocation.ViewModel.CourseViewModel
+import com.example.professorallocation.ViewModel.DepartmentViewModel
 import com.example.professorallocation.model.Course
+import com.example.professorallocation.model.Department
 
 @Composable
-fun EditCourse(
-    onCourseAdded: () -> Unit,
-    viewModel: CourseViewModel,
+fun EditDepartment(
+    onDepartmentAdded: () -> Unit,
+    viewModel: DepartmentViewModel,
     navController: NavController
 ) {
     val navBackStackEntry = navController.currentBackStackEntry
-    val courseId = navBackStackEntry?.arguments?.getLong("id")
+    val departmentId = navBackStackEntry?.arguments?.getLong("id")
 
-
-    LaunchedEffect(courseId) {
-        courseId?.let{
-            viewModel.getCourseById(courseId)
+    LaunchedEffect(departmentId) {
+        departmentId?.let{
+            viewModel.getDepartmentById(departmentId)
         }
     }
 
-    val course by viewModel.currentCourse.collectAsStateWithLifecycle()
+    val department by viewModel.currentDepartment.collectAsStateWithLifecycle()
 
-    course?.let { c ->
-        EditCourseForm(
-            onCourseAdded,
-            course = c,
-            onSave = { updatedCourse ->
-                viewModel.updateCourse(
-                    course = updatedCourse,
+    department?.let { d ->
+        EditDepartmentForm(
+            onDepartmentAdded,
+            department = d,
+            onSave = { updatedDepartment ->
+                viewModel.updateDepartment(
+                    department = updatedDepartment,
                     onSuccess = {
                         navController.popBackStack()
-                        viewModel.refreshCourses()
+                        viewModel.refreshDepartments()
                     },
                     onError = { throwable ->
-                       Log.e("EditCourseScreen", "Erro ao atualizar curso")
+                        Log.e("EditDepartmentScreen", "Erro ao atualizar departamento")
                     }
                 )
             }
         )
     } ?: run {
-        Text("Carregando curso...")
+        Text("Carregando departamento...")
     }
 }
 
 @Composable
-fun EditCourseForm(
-    onCourseAdded: () -> Unit,
-    course: Course,
-    onSave: (Course) -> Unit
+fun EditDepartmentForm(
+    onDepartmentAdded: () -> Unit,
+    department: Department,
+    onSave: (Department) -> Unit
 ) {
-    val nameState = remember { mutableStateOf(course.name) }
+    val nameState = remember { mutableStateOf(department.name) }
 
     Column(
         modifier = Modifier
@@ -82,7 +84,7 @@ fun EditCourseForm(
         TextField(
             value = nameState.value,
             onValueChange = { nameState.value = it },
-            label = { Text("Nome do Curso") },
+            label = { Text("Nome do Departamento") },
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
@@ -92,8 +94,8 @@ fun EditCourseForm(
 
         Button(
             onClick = {
-                onSave(course.copy(name = nameState.value))
-                onCourseAdded()
+                onSave(department.copy(name = nameState.value))
+                onDepartmentAdded()
             },
             modifier = Modifier
                 .padding(top = 16.dp)

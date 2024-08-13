@@ -1,14 +1,9 @@
 package com.example.professorallocation.Screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,29 +19,38 @@ import com.example.professorallocation.ui.theme.ProfessorAllocationTheme
 @Composable
 fun Home() {
 
-    Box(modifier = Modifier.fillMaxSize()){
-        Column(modifier = Modifier
+    Box(
+        modifier = Modifier
             .fillMaxSize()
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .padding(top = 30.dp) // Adjust this padding to account for the TopAppBar
-            .padding(horizontal = 10.dp)
-            .align(Alignment.TopStart), verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally) {
+            .background(Color(0xFFE3F2FD))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 30.dp)
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
             val image = painterResource(id = R.drawable.fafirehome)
             Image(
                 painter = image,
                 contentDescription = "Fafire",
+                modifier = Modifier
+                    .size(300.dp)
+                    .padding(bottom = 20.dp)
             )
+
             Text(
-                text = "Professor Allocation App for University ",
-                fontSize = 20.sp,
+                text = "Professor Allocation App for University",
+                fontSize = 22.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.run { padding(16.dp)}
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
-
 }

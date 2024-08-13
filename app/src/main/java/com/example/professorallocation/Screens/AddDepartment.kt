@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.professorallocation.model.Department
+import com.example.professorallocation.repository.DepartmentRepository
+import com.example.professorallocation.repository.RetrofitConfig
 import com.example.professorallocation.ui.theme.ProfessorAllocationTheme
 import com.example.professorallocation.ui.theme.greenJC
 import retrofit2.Call
@@ -43,28 +45,19 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AddDepartment() {
-    ProfessorAllocationTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            Scaffold{
-                postDepartment()
-            }
-        }
-    }
+fun AddDepartment(onDepartmentAdded: () -> Unit) {
+
+    postDepartment(onDepartmentAdded)
+
 }
 
 @Composable
-fun postDepartment(){
+fun postDepartment(onDepartmentAdded: () -> Unit){
     val ctx = LocalContext.current
-
     val departmentName = remember{
         mutableStateOf(TextFieldValue())
     }
     val response = remember {
-        mutableStateOf("")
-    }
-
-    val departmentId = remember {
         mutableStateOf("")
     }
 
@@ -102,7 +95,10 @@ fun postDepartment(){
 
         Button(
             onClick = {
-                postDataUsingRetrofit(ctx,departmentId.value.toLong(),departmentName,response)
+               val department = Department(name = departmentName.value.text)
+                postDataDepartment(ctx, department, response){
+                    onDepartmentAdded()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -126,32 +122,25 @@ fun postDepartment(){
     }
 }
 
-private fun postDataUsingRetrofit(
+private fun postDataDepartment(
     ctx: Context,
-    departmentId: Long,
-    departmentName: MutableState<TextFieldValue>,
-    result: MutableState<String>
+    department: Department,
+    result: MutableState<String>,
+    onDepartmentAdded: () -> Unit
+
 ){
-//    val url = "http://192.168.1.96:8080/"
-//    val retrofit = Retrofit.Builder().baseUrl(url).addConverterFactory(GsonConverterFactory.create()).build()
-//    val retrofitAPI = retrofit.create(RetrofitAPI::class.java)
-//    val department = Department(departmentId,departmentName.value.text)
-//    val call: Call<Department?>? = retrofitAPI.postdeparment(department)
-//
-//    call!!.enqueue(object : Callback<Department?> {
-//        override fun onResponse(call: Call<Department?>, response: Response<Department?>) {
-//            Toast.makeText(ctx, "Departamento Cadastrado", Toast.LENGTH_SHORT).show()
-//
-//            val department: Department? = response.body()
-//
-//            val resp = "Status Code: " + response.code() + "\n" + "Department Name : " + department!!.name
-//
-//            result.value = resp
-//        }
-//
-//        override fun onFailure(call: Call<Department?>, t: Throwable) {
-//            result.value = "Error found is: " + t.message
-//        }
-//    })
+    val departmentRepository = DepartmentRepository(RetrofitConfig.departmentService)
+
+    departmentRepository.saveDepartment(
+        department = department,
+        onSuccess = {
+            result.value = "Departamento Cadastrado com Sucesso!"
+            Toast.makeText(ctx,"Departamento Cadastrado", Toast.LENGTH_SHORT).show()
+            onDepartmentAdded()
+        },
+        onError = {throwable ->
+            result.value = "Error loading departments: ${throwable}"
+        }
+    )
 
 }

@@ -14,15 +14,15 @@ interface DepartmentService {
     @GET("departments")
     fun getAll() : Call<List<Department>>
 
-    @GET("departments/{id}")
-    fun getById(@Path("id") id: Int) : Call<Department>
+    @POST("departments")
+    fun save(@Body department: Department) : Call<Any>
 
-    @POST("departments/{id}")
-    fun save(@Body department: Department) : Call<Department>
+    @GET("departments/{id}")
+    fun getById(@Path("id") id: Long) : Call<Department>
 
     @PUT("departments/{id}")
-    fun update(@Path("id") id: Int, @Body department: Department) : Call<Department>
+    fun update(@Path("id") id: Long?, @Body department: Department) : Call<Department>
 
     @DELETE("departments/{id}")
-    fun delete(@Path("id") id: Int): Call<Any>
+    fun delete(@Path("id") id: Long): Call<Any>
 }

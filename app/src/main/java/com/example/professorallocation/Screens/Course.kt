@@ -21,12 +21,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.professorallocation.Screens.Screens
 import com.example.professorallocation.ViewModel.CourseViewModel
 import com.example.professorallocation.model.Course
+import com.example.professorallocation.ui.theme.greenJC
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -39,7 +42,9 @@ fun Course(viewModel: CourseViewModel, navController: NavController) {
             FloatingActionButton(
                 onClick = {
                     navController.navigate(Screens.AddCourse.screen)
-                }
+                },
+                containerColor = greenJC,
+                contentColor = Color.White
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Course")
             }
@@ -69,7 +74,7 @@ fun CourseList(
     onDeleteClick: (Course) -> Unit
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(16.dp) // Add padding around the list
+        contentPadding = PaddingValues(16.dp),
     ) {
         items(courses) { course ->
             CourseItem(
@@ -92,6 +97,7 @@ fun CourseItem(
             .fillMaxWidth()
             .padding(vertical = 4.dp) // Space between items
             .clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background,),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = MaterialTheme.shapes.medium
     ) {
@@ -103,6 +109,7 @@ fun CourseItem(
         ) {
             Text(
                 text = course.name,
+                fontSize = 20.sp,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f) // Ensures text takes up available space
             )
